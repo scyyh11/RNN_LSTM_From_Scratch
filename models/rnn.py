@@ -1,4 +1,5 @@
 import numpy as np
+from .activations import tanh
 
 
 class RNN:
@@ -6,30 +7,19 @@ class RNN:
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
+        self.cache = []
 
         # Initialize Weight (scale factor = 0,1)
-        self.Wx = np.random.randn(self.hidden_dim, self.input_dim) * 0.1
-        self.Wh = np.random.randn(self.hidden_dim, self.hidden_dim) * 0.1
-        self.Wy = np.random.randn(self.output_dim, self.hidden_dim) * 0.1
+        scale = 0.1
+        self.Wx = np.random.randn(self.hidden_dim, self.input_dim) * scale
+        self.Wh = np.random.randn(self.hidden_dim, self.hidden_dim) * scale
+        self.Wy = np.random.randn(self.output_dim, self.hidden_dim) * scale
 
         # Initialize Bias
         self.bh = np.zeros((self.hidden_dim, 1))
         self.by = np.zeros((self.output_dim, 1))
 
-    def tanh(self, x):
-        """
-        Definition of tanh: tanh(x) = (e^x - e^(-x)) / (e^x + e^(-x))
-
-        Args:
-            x (np.ndarray): Input array or scalar.
-        Returns:
-            np.ndarray: The element-wise tanh activation applied to x.
-        """
-        exp_pos = np.exp(x)
-        exp_neg = np.exp(-x)
-        return (exp_pos - exp_neg) / (exp_pos + exp_neg)
-
-    def forward(self, X):
+    def forward(self, x):
         """
         Forward pass through the RNN for one input sequence.
 
@@ -38,7 +28,7 @@ class RNN:
         hidden state is used to compute the output.
 
         Args:
-            X (np.ndarray): Input sequence of shape (sequence_length, input_dim).
+            x (np.ndarray): Input sequence of shape (sequence_length, input_dim).
                             Each row represents one time step.
 
         Returns:
@@ -48,14 +38,14 @@ class RNN:
         # Initialize hidden state
         h_t = np.zeros((self.hidden_dim, 1))
 
-        # Cache for backprop
+        # Clear cache
         self.cache = []
 
         # Process every time step
-        for t in range(X.shape[0]):
-            x_t = X[t].reshape(-1, 1)
+        for t in range(x.shape[0]):
+            x_t = x[t].reshape(-1, 1)
             h_prev = h_t.copy()
-            h_t = self.tanh(np.dot(self.Wh, h_t) + np.dot(self.Wx, x_t) + self.bh)
+            h_t = tanh(np.dot(self.Wh, h_t) + np.dot(self.Wx, x_t) + self.bh)
             self.cache.append((h_prev, x_t.copy(), h_t.copy()))
 
         y = np.dot(self.Wy, h_t) + self.by
