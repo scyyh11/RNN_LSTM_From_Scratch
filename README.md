@@ -17,7 +17,6 @@ This project implements a **Recurrent Neural Network (RNN)** and **Long Short-Te
 ## 🗂️ Project Structure
 
 ```
-.
 ├── main.py               # Entry point: trains both custom and PyTorch models
 ├── models/
 │   ├── rnn.py            # Custom RNN class (NumPy)
