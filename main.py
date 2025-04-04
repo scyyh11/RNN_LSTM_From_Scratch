@@ -10,18 +10,18 @@ import time
 from tqdm import tqdm
 
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print("Using device:", device)
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print("Using device:", DEVICE)
 
-
-input_dim = 28
-hidden_dim = 128
-output_dim = 10
-learning_rate = 0.005
+INPUT_DIM = 28
+HIDDEN_DIM = 128
+OUTPUT_DIM = 10
+LEARNING_RATE = 0.005
 batch_size = 64
-epochs = 5
+EPOCH = 5
 num_train_samples = 5000
 num_test_samples = 1000
+
 
 transform = transforms.ToTensor()
 trainset = datasets.MNIST(root="./data", train=True, download=True, transform=transform)
@@ -31,22 +31,24 @@ test_subset = Subset(testset, range(num_test_samples))
 train_loader = DataLoader(train_subset, batch_size=1, shuffle=True)
 test_loader = DataLoader(test_subset, batch_size=1, shuffle=False)
 
+
 def one_hot(label, num_classes=10):
     y = np.zeros((num_classes, 1))
     y[label] = 1
     return y
 
+
 def train_custom(model_type='rnn'):
     if model_type == 'rnn':
-        model = RNN(input_dim, hidden_dim, output_dim)
+        model = RNN(INPUT_DIM, HIDDEN_DIM, OUTPUT_DIM)
     else:
-        model = LSTM(input_dim, hidden_dim, output_dim)
+        model = LSTM(INPUT_DIM, HIDDEN_DIM, OUTPUT_DIM)
 
     model_name = model_type.upper()
     print(f"\nTraining custom {model_name}...")
 
     start_time = time.time()
-    for epoch in range(epochs):
+    for epoch in range(EPOCH):
         correct = 0
         for x, label in tqdm(train_loader, desc=f"[{model_name}] Epoch {epoch+1}"):
             x = x.squeeze().numpy()
@@ -57,9 +59,9 @@ def train_custom(model_type='rnn'):
             if pred == label:
                 correct += 1
 
-            target = one_hot(label, output_dim)
+            target = one_hot(label, OUTPUT_DIM)
             dLdy = 2 * (output - target)
-            model.backward(dLdy, learning_rate)
+            model.backward(dLdy, LEARNING_RATE)
 
         acc = correct / num_train_samples * 100
         print(f"Epoch {epoch+1} Accuracy: {acc:.2f}%")
@@ -70,48 +72,52 @@ def train_custom(model_type='rnn'):
 class TorchRNN(nn.Module):
     def __init__(self):
         super().__init__()
-        self.rnn = nn.RNN(input_size=28, hidden_size=hidden_dim, batch_first=True)
-        self.fc = nn.Linear(hidden_dim, output_dim)
+        self.rnn = nn.RNN(input_size=28, hidden_size=HIDDEN_DIM, batch_first=True, nonlinearity='tanh')
+        self.fc = nn.Linear(HIDDEN_DIM, OUTPUT_DIM)
 
     def forward(self, x):
         out, _ = self.rnn(x)
         out = self.fc(out[:, -1, :])
         return out
 
+
 class TorchLSTM(nn.Module):
     def __init__(self):
         super().__init__()
-        self.lstm = nn.LSTM(input_size=28, hidden_size=hidden_dim, batch_first=True)
-        self.fc = nn.Linear(hidden_dim, output_dim)
+        self.lstm = nn.LSTM(input_size=28, hidden_size=HIDDEN_DIM, batch_first=True)
+        self.fc = nn.Linear(HIDDEN_DIM, OUTPUT_DIM)
 
     def forward(self, x):
         out, _ = self.lstm(x)
         out = self.fc(out[:, -1, :])
         return out
 
+
 def train_torch(model, model_name):
-    model = model.to(device)
+    model = model.to(DEVICE)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
     print(f"\nTraining PyTorch {model_name}...")
     start_time = time.time()
 
-    for epoch in range(epochs):
+    for epoch in range(EPOCH):
         correct = 0
         for x, label in tqdm(train_loader, desc=f"[{model_name}] Epoch {epoch+1}"):
-            x = x.to(device).squeeze(1)  # (1, 28, 28)
-            label = label.to(device)
+            x = x.to(DEVICE)
+            x = x.squeeze(1)
+            label = label.to(DEVICE)
 
             output = model(x)
             loss = criterion(output, label)
 
             optimizer.zero_grad()
             loss.backward()
+            nn.utils.clip_grad_norm_(model.parameters(), max_norm=5.0)
             optimizer.step()
 
-            pred = output.argmax(dim=1).item()
-            if pred == label.item():
+            pred = output.argmax(dim=1)
+            if pred.item() == label.item():
                 correct += 1
 
         acc = correct / num_train_samples * 100
@@ -131,6 +137,6 @@ if __name__ == "__main__":
     # Summary
     print("\nFinal Comparison:")
     print(f"Custom RNN       - Acc: {rnn_acc:.2f}%, Time: {rnn_time:.2f}s")
-    print(f"Custom LSTM      - Acc: {lstm_acc:.2f}%, Time: {lstm_time:.2f}s")
     print(f"PyTorch RNN      - Acc: {trnn_acc:.2f}%, Time: {trnn_time:.2f}s")
+    print(f"Custom LSTM      - Acc: {lstm_acc:.2f}%, Time: {lstm_time:.2f}s")
     print(f"PyTorch LSTM     - Acc: {tlstm_acc:.2f}%, Time: {tlstm_time:.2f}s")
