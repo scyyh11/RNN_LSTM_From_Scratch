@@ -80,15 +80,17 @@ def evaluate(model, dataloader, model_name="Model", is_custom=False):
                 pred = np.argmax(output)
                 if pred == label:
                     correct += 1
+                total += 1
             else:
+                # Assume batched tensors
                 x = x.to(DEVICE).squeeze(1)
                 label = label.to(DEVICE)
                 output = model(x)
                 pred = output.argmax(dim=1)
-                if pred.item() == label.item():
-                    correct += 1
-            total += 1
+                correct += (pred == label).sum().item()
+                total += label.size(0)
 
     acc = correct / total * 100
     print(f"{model_name} Test Accuracy: {acc:.2f}%")
     return acc
+

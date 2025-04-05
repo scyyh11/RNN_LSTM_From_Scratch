@@ -21,25 +21,25 @@ test_loader = DataLoader(test_subset, batch_size=BATCH_SIZE, shuffle=False)
 
 if __name__ == "__main__":
     # Custom
-    rnn_model, rnn_acc = helpers.train(RNN(INPUT_DIM, HIDDEN_DIM, OUTPUT_DIM),
-                                       train_loader_custom, "Custom RNN", is_custom=True)
+    # rnn_model, rnn_acc = helpers.train(RNN(INPUT_DIM, HIDDEN_DIM, OUTPUT_DIM),
+    #                                    train_loader_custom, "Custom RNN", is_custom=True)
     lstm_model, lstm_acc = helpers.train(LSTM(INPUT_DIM, HIDDEN_DIM, OUTPUT_DIM),
                                          train_loader_custom, "Custom LSTM", is_custom=True)
 
     # PyTorch
-    torch_rnn_model, trnn_acc = helpers.train(torch_rnn.TorchRNN(INPUT_DIM, HIDDEN_DIM, OUTPUT_DIM),
-                                              train_loader, "PyTorch RNN")
-    torch_lstm_model, tlstm_acc = helpers.train(torch_lstm.TorchLSTM(INPUT_DIM, HIDDEN_DIM, OUTPUT_DIM),
-                                                train_loader, "PyTorch LSTM")
+    # torch_rnn_model, trnn_acc = helpers.train(torch_rnn.TorchRNN(INPUT_DIM, HIDDEN_DIM, OUTPUT_DIM),
+    #                                           train_loader, "PyTorch RNN")
+    # torch_lstm_model, tlstm_acc = helpers.train(torch_lstm.TorchLSTM(INPUT_DIM, HIDDEN_DIM, OUTPUT_DIM),
+    #                                             train_loader, "PyTorch LSTM")
 
     print("\nFinal Comparison:")
-    print(f"Custom RNN       - Train Acc: {rnn_acc:.2f}%")
-    print(f"PyTorch RNN      - Train Acc: {trnn_acc:.2f}%")
+    # print(f"Custom RNN       - Train Acc: {rnn_acc:.2f}%")
+    # print(f"PyTorch RNN      - Train Acc: {trnn_acc:.2f}%")
     print(f"Custom LSTM      - Train Acc: {lstm_acc:.2f}%")
-    print(f"PyTorch LSTM     - Train Acc: {tlstm_acc:.2f}%")
+    # print(f"PyTorch LSTM     - Train Acc: {tlstm_acc:.2f}%")
 
     print("\nEvaluating on test set...")
-    helpers.evaluate(rnn_model, test_loader_custom, "Custom RNN", is_custom=True)
+    # helpers.evaluate(rnn_model, test_loader_custom, "Custom RNN", is_custom=True)
     helpers.evaluate(lstm_model, test_loader_custom, "Custom LSTM", is_custom=True)
-    helpers.evaluate(torch_rnn_model, test_loader, "PyTorch RNN")
-    helpers.evaluate(torch_lstm_model, test_loader, "PyTorch LSTM")
+    # helpers.evaluate(torch_rnn_model, test_loader, "PyTorch RNN")
+    # helpers.evaluate(torch_lstm_model, test_loader, "PyTorch LSTM")

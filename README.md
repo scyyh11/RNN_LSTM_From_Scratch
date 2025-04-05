@@ -28,14 +28,14 @@ This project implements a **Recurrent Neural Network (RNN)** and **Long Short-Te
 
 ---
 
-## 🧪 Training Results (5 epochs, 5k training samples, 1k test samples)
+## 🧪 Training Results (10 epochs, 5k training samples, 1k test samples)
 
 | Model         | Train Accuracy | Test Accuracy |
 |---------------|----------------|---------------|
-| Custom RNN    | 89.90%         |   87.60%      |
-| PyTorch RNN   | N/A            |               |
-| Custom LSTM   | 91.00%         |   88.70%      |
-| PyTorch LSTM  | 93.00%         |   92.10%      |
+| Custom RNN    | 90.68%         | 83.20%        |
+| PyTorch RNN   | 81.38%         | 79.70%        |
+| Custom LSTM   | 96.28%         | 93.60%        |
+| PyTorch LSTM  | 98.00%         | 93.70%        |
 
 *Results may vary slightly depending on your machine.*
 
